@@ -1,6 +1,6 @@
 #Python 2.7 的新特性
 作者:|A.M. Kuchling (amk at amk.ca)
-------------------------------------
+-----|-------------------------------
 这篇文章介绍了在2010年七月三号发布的python2.7的新特性。
 
 数值处理在很多方面得到了提高，包括浮点数和[Decimal](https://docs.python.org/3/library/decimal.html#decimal.Decimal)类。
