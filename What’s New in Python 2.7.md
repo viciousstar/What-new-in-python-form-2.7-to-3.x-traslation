@@ -81,7 +81,7 @@ PEP written by Armin Ronacher and Raymond Hettinger; implemented by Raymond Hett
 ##PEP 391：Dictionary-Based Configuration For Logging
 *******************************【todo】********************************
 
-##PEP 3106F：字典视图
+##PEP 3106：字典视图
 字典方法【keys（），values（），items()】在Python 3.x中是不同的。他们返回一个称作view的对象而不是完全的具体的列表。
 在Python 2.7中是不可能改变key（），values（），items（）的返回值的，因为太多的代码会出错。与Python 3中不同的的是有了新的名字，viwekeys(),viewvalues(),viewitems()。
 ```python
@@ -126,8 +126,84 @@ PEP written by Guido van Rossum. Backported to 2.7 by Alexandre Vassalotti; issu
 
 *******************************【todo】*******************************
 
-PEP 3137： memoryview 对象
+##PEP 3137： memoryview 对象
 
 *******************************【todo】********************************
 
 ##其他的语言改变
+在Python语言核心中其余一些小的改变如下：
+- set语法向后接入Python 3.x。大括号被用来产生可变set；set 和字典区分开了通过不包含冒号和值。```{}```继续代表空字典；使用```set()```产生空set。
+```python
+>>> {1, 2, 3, 4, 5}
+set([1, 2, 3, 4, 5])
+>>> set() # empty set
+set([])
+>>> {}    # empty dict
+{}
+```
+Backported by Alexandre Vassalotti; 【issue 2335】.
+
+- 字典和set解析是另一个先后接入Python 3.x的特性，通过在sets和字典上使用列表解析语法生成列表或者生成器。
+Backported by Alexandre Vassalotti; 【issue 2333】.
+
+- 【with】语法现在在一条语句中使用多文本管理。文本管理从左到右把每一当作是新的【with】语句处理，这相当于：
+```python
+with A() as a, B() as b:
+    ... suite of statements ...
+```
+等同于：
+```python
+with A() as a:
+    with B() as b:
+        ... suite of statements ...
+```
+contextlib.nested()函数提供同样的功能，所以这不再是不要的，而且是不提倡的了。
+(Proposed in https://codereview.appspot.com/53094; implemented by Georg Brandl.)
+
+
+*******************************【todo】*******************************
+
+need to do more
+
+*******************************【todo】********************************
+
+##优化
+一些性能提升加了进来：
+- 增加了一个新的操作符用来执行with语句初始化操作，查看 【__enter__()】 和 【__exit__()】方法。（Contributed by Benjamin Peterson.）
+
+- 在一个常见使用模式下垃圾收集器表现的更好：当很多对象被申请而没有释放时。在以前会在垃圾收集上花费二次时间，但是现在当对象数量在堆上增长的时候全部垃圾收集的数量减少了【存疑】。新的逻辑只有在中代被收集了十次并且剩余的对象数量超过最老一代的10%以上才会执行完全的垃圾收集。
+【此段不太懂，什么是完全的垃圾收集，是在分代收集之下的吗】
+
+- 垃圾收集尽量避免追踪不能形成循环引用的简单容器。在Python 2.7中，这在地点和元组仅仅包含原子类型（例如整数，字符串等）。如果一个字典包含的都是仅仅包含原子类型的元组，也不会被跟踪。这减少了垃圾收集的额代价通过这种减少是收集器检查和跟踪的对象数量。 (Contributed by Antoine Pitrou; issue 4688.)
+
+- 长整型现在在内部可以以2**15或者2**30为基数存储，基数在创建的时候确定。以前总是以2**15为基数存储。使用2**30为基数存储能在64为机器上带来明显的性能提升，但是这个结果在32为机器上是相反的【存疑】。因此，默认在64位机器上使用2**30，在32位机器上使用2**15为基数存储。在Unix，有一个新的配置选项 --enable-big-digits 可以覆盖默认配置。
+
+Apart from the performance improvements this change should be invisible to end users, with one exception: for testing and debugging purposes there’s a new structseq sys.long_info that provides information about the internal format, giving the number of bits per digit and the size in bytes of the C type used to store each digit:
+
+```python
+>>> import sys
+>>> sys.long_info
+sys.long_info(bits_per_digit=30, sizeof_digit=4)
+```
+(Contributed by Mark Dickinson; issue 4258.)
+另一些改变使得长整数更少字节：在32位操作系统上少两字节，在64位操作系统上少6字节(Contributed by Mark Dickinson; issue 5260.)
+
+- 长整数除法通过收紧内部循环变得更快，使用移位来代替乘法，修正了迭代。各种不同的测试显示在长整数除法和取模运算中提升了50%到150%的性能提升 (Contributed by Mark Dickinson; issue 5512.)。按位操作也显著变快了 (initial patch by Gregory Smith; issue 1087418)。
+
+- ```%```为左值应该是字符串的检查实现和特例他【存疑】。这提升了那些经常使用%的应用的额-3%的性能，例如 templating库。(Implemented by Collin Winter; issue 5176.)
+
+- List comprehensions with an if condition are compiled into faster bytecode. (Patch by Antoine Pitrou, back-ported to 2.7 by Jeffrey Yasskin; issue 4715.)
+
+- Converting an integer or long integer to a decimal string was made faster by special-casing base 10 instead of using a generalized conversion function that supports arbitrary bases. (Patch by Gawain Bolton; issue 6713.)
+
+- The split(), replace(), rindex(), rpartition(), and rsplit() methods of string-like types (strings, Unicode strings, and bytearray objects) now use a fast reverse-search algorithm instead of a character-by-character scan. This is sometimes faster by a factor of 10. (Added by Florent Xicluna; issue 7462 and issue 7622.)
+
+- The pickle and cPickle modules now automatically intern the strings used for attribute names, reducing memory usage of the objects resulting from unpickling. (Contributed by Jake McGuire; issue 5084.)
+
+- The cPickle module now special-cases dictionaries, nearly halving the time required to pickle them. (Contributed by Collin Winter; issue 5670.)
+
+*******************************【todo】*******************************
+
+more need to do
+
+*******************************【todo】********************************
