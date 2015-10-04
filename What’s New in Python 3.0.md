@@ -104,3 +104,58 @@ Python 3.0简化了排序比较规则：
 - PEP 3131: Non-ASCII letters are now allowed in identifiers. (However, the standard library remains ASCII-only with the exception of contributor names in comments.)
 - The StringIO and cStringIO modules are gone. Instead, import the io module and use io.StringIO or io.BytesIO for text and data respectively.
 - See also the Unicode HOWTO, which was updated for Python 3.0.
+
+##语法改变概览
+
+这一部分清晰地展示了每一个语法改变在Pythn3.0中。
+
+### 新语法
+
+- 【PEP 3107】：函数参数和返回值注释。This provides a standardized way of annotating a function’s parameters and return value. There are no semantics attached to such annotations except that they can be introspected at runtime using the __annotations__ attribute. The intent is to encourage experimentation through metaclasses, decorators or frameworks.
+
+- 【PEP 3102】：keyword-only 参数。 被命名参数在参数列表中*args之后通过特别指定keyword调用。你也可以在参数列表中仅使用*来表示你不接受变长的阐述列表，但是你确实有一个键参数。
+
+- 键参数现在被允许在class定义的时候放在基类列表之后。这约定被用来指定metaclass（见下节），但是也可以被用作其他目的，只要metaclass支持。
+
+- 【PEP 3104】：【nonlocal】 语句。 使用nonlocal x你现在可以直接给外部命名空间的变量赋值。【nonlocal】是一个新的保留字。
+
+- 【PEP 3132】：扩展的迭代展开。你可以写一些 a, b, *rest = some_sequence 之类的东西。甚至 *rest, a = stuff。rest对象总是一个列表，可能为空；右值可以为任意迭代器。
+
+```python
+(a, *rest, b) = range(5)
+```
+将会设置a为0，b为4，rest为[1, 2, 3].
+
+- Dictionary comprehensions: {k: v for k, v in stuff} means the same thing as dict(stuff) but is more flexible. (This is PEP 0274 vindicated. :-)
+
+- Set literals, e.g. {1, 2}. Note that {} is an empty dictionary; use set() for an empty set. Set comprehensions are also supported; e.g., {x for x in stuff} means the same thing as set(stuff) but is more flexible.
+
+- New octal literals, e.g. 0o720 (already in 2.6). The old octal literals (0720) are gone.
+
+- New binary literals, e.g. 0b1010 (already in 2.6), and there is a new corresponding built-in function, bin().
+
+- Bytes literals are introduced with a leading b or B, and there is a new corresponding built-in function, bytes().
+
+*******************************【todo】*******************************
+
+###Changed Syntax
+
+###Removed Syntax
+
+##Changes Already Present In Python 2.6
+
+##Library Changes
+*******************************【todo】********************************
+
+##【PEP 3101】：一个新的格式化字符串方法
+- 一个新的内建的字符串格式化操作系统代替了%字符串格式化操作符（但是，%操作符仍旧受到支持，在python3.1中将会被废弃和删除。）读【PEP 3101】来得到完整的信息。
+
+*******************************【todo】*******************************
+
+##Miscellaneous Other Changes
+
+##Build and C API Changes
+
+##Porting To Python 3.0
+
+*******************************【todo】********************************
