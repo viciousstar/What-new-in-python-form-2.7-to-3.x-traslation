@@ -44,7 +44,7 @@ There are <4294967296> possibilities!
 刚开始，你会发现你总是会输入print x。要花费一些时间来习惯键入print（x）。
 使用 2to3 工具可以自动转换。【存疑】
 
-##试图和迭代器代替列表
+###视图和迭代器代替列表
 
 一些熟悉的APIs将不再返回列表：
 - dict methods dict.keys(), dict.items() and dict.values() return “views” instead of lists. For example, this no longer works: k = d.keys(); k.sort(). Use k = sorted(d) instead (this works in Python 2.5 too and is just as efficient).
@@ -56,7 +56,7 @@ There are <4294967296> possibilities!
 
 - zip（）现在也返回迭代器。
 
-##排序比较
+###排序比较
 Python 3.0简化了排序比较规则：
 - 当使用（<, <=, >=, >）这些比较符号是如果比较对象没有一个有意义的自然顺序就会抛出一个类型异常。因此，像 1 < '', 0 > None或者len <= len这种表达式是没有效的。None < None 也会抛出类型错误而不是返回False。一个显然的推论是排序一个多类型的列表将不再有意义，只有所有的元素都可以互相比较才能进行排序。。注意这没有应用到==和！=操作符上：不可比较对象总是可以比较是否相等。
 
@@ -64,7 +64,7 @@ Python 3.0简化了排序比较规则：
 
 - cmp函数是过去的事情了，__cmp__()方法不在收到支持，使用__it__()来排序，__eq__() __hash__()【存疑】，其余的富比较也被需要【存疑】。（如果你真的需要cmp（）函数，你应该使用(a > b) - (a < b)来代替cmp（a, b)。）
 
-##整数
+###整数
 - 【PEP 0237】：本质上，long被重命名为int。这样，只有一种内置整数类型，为int；但是他的行为大部分和long类型相似。
 
 - 【PEP 0238】：像 1/2这种表达式返回一个浮点。使用1//2会得到截断行为。（后者的语法已经存在很多年了，至少从Python 2.2.）
@@ -73,7 +73,7 @@ Python 3.0简化了排序比较规则：
 
 - 八进制数字不在是0702这种格式；而是0o720代替
 
-##Text Vs. Data Instead Of Unicode Vs. 8-bit【存疑】
+###Text Vs. Data Instead Of Unicode Vs. 8-bit【存疑】
 
 所有你了解的二进制数据和Unicode字符都已经改变了。
 
@@ -144,8 +144,8 @@ Python 3.0简化了排序比较规则：
 
 ##Changes Already Present In Python 2.6
 
-##Library Changes
-*******************************【todo】********************************
+##Library Change
+s*******************************【todo】********************************
 
 ##【PEP 3101】：一个新的格式化字符串方法
 - 一个新的内建的字符串格式化操作系统代替了%字符串格式化操作符（但是，%操作符仍旧受到支持，在python3.1中将会被废弃和删除。）读【PEP 3101】来得到完整的信息。
